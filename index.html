@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SLA Breach Predictor</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#1f4037,#99f2c8);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    background:white;
+    padding:30px;
+    border-radius:18px;
+    width:100%;
+    max-width:700px;
+    box-shadow:0 15px 35px rgba(0,0,0,0.25);
+    text-align:center;
+    transition:0.3s;
+}
+
+.container:hover{
+    transform:translateY(-4px);
+}
+
+h1{
+    margin-bottom:10px;
+    color:#1f4037;
+}
+
+.subtitle{
+    color:#666;
+    margin-bottom:25px;
+    font-size:14px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    text-align:left;
+}
+
+.full-width{
+    grid-column:1 / -1;
+}
+
+label{
+    display:block;
+    margin-bottom:6px;
+    font-size:14px;
+    font-weight:bold;
+    color:#333;
+}
+
+input, select{
+    width:100%;
+    padding:11px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    transition:0.2s;
+    font-size:14px;
+    background:#fff;
+}
+
+input:focus, select:focus{
+    border-color:#4CAF50;
+    outline:none;
+    box-shadow:0 0 6px rgba(76,175,80,0.35);
+}
+
+button{
+    background:#4CAF50;
+    color:white;
+    padding:13px;
+    border:none;
+    width:100%;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+    margin-top:18px;
+}
+
+button:hover{
+    background:#2e8b57;
+    transform:scale(1.02);
+}
+
+button:active{
+    transform:scale(0.98);
+}
+
+.error{
+    color:#c62828;
+    font-weight:bold;
+    display:none;
+    margin-top:12px;
+    text-align:center;
+}
+
+.result{
+    margin-top:22px;
+    padding:16px;
+    border-radius:12px;
+    font-size:20px;
+    font-weight:bold;
+    animation:fadeIn 0.8s;
+}
+
+.low{
+    background:#d4edda;
+    color:#155724;
+}
+
+.medium{
+    background:#fff3cd;
+    color:#856404;
+}
+
+.high{
+    background:#f8d7da;
+    color:#721c24;
+}
+
+.info-box{
+    margin-top:12px;
+    padding:12px;
+    border-radius:10px;
+    background:#f5f7f9;
+    color:#333;
+    font-size:15px;
+    animation:fadeIn 0.8s;
+}
+
+.loader{
+    display:none;
+    margin-top:20px;
+}
+
+.spinner{
+    border:4px solid #f3f3f3;
+    border-top:4px solid #4CAF50;
+    border-radius:50%;
+    width:32px;
+    height:32px;
+    animation:spin 1s linear infinite;
+    margin:auto;
+}
+
+small{
+    color:#666;
+    display:block;
+    margin-top:4px;
+    font-size:12px;
+}
+
+@keyframes spin{
+    0%{transform:rotate(0deg);}
+    100%{transform:rotate(360deg);}
+}
+
+@keyframes fadeIn{
+    from{opacity:0;transform:translateY(18px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+@media (max-width: 700px){
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+
+<script>
+function validateForm(){
+    let fields = document.querySelectorAll("input, select");
+    let error = document.getElementById("error");
+
+    for(let i=0; i<fields.length; i++){
+        if(fields[i].value === ""){
+            error.style.display = "block";
+            return false;
+        }
+    }
+
+    error.style.display = "none";
+    document.getElementById("loader").style.display = "block";
+    return true;
+}
+</script>
+
+</head>
+<body>
+
+<div class="container">
+    <h1>🚚 SLA Breach Predictor</h1>
+    <p class="subtitle">Predict shipment SLA breach risk using operational shipment details</p>
+
+    <form action="/predict" method="post" onsubmit="return validateForm()">
+        <div class="form-grid">
+
+            <div>
+                <label>Origin Country</label>
+                <select name="origin_country">
+                    <option value="">Select Origin Country</option>
+                    <option value="China">China</option>
+                    <option value="France">France</option>
+                    <option value="Germany">Germany</option>
+                    <option value="India">India</option>
+                    <option value="Mexico">Mexico</option>
+                    <option value="Poland">Poland</option>
+                    <option value="UAE">UAE</option>
+                    <option value="UK">UK</option>
+                    <option value="USA">USA</option>
+                    <option value="Vietnam">Vietnam</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Destination Country</label>
+                <select name="destination_country">
+                    <option value="">Select Destination Country</option>
+                    <option value="China">China</option>
+                    <option value="France">France</option>
+                    <option value="Germany">Germany</option>
+                    <option value="India">India</option>
+                    <option value="Mexico">Mexico</option>
+                    <option value="Poland">Poland</option>
+                    <option value="UAE">UAE</option>
+                    <option value="UK">UK</option>
+                    <option value="USA">USA</option>
+                    <option value="Vietnam">Vietnam</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Carrier</label>
+                <select name="carrier">
+                    <option value="">Select Carrier</option>
+                    <option value="Carrier_A">Carrier A</option>
+                    <option value="Carrier_B">Carrier B</option>
+                    <option value="Carrier_C">Carrier C</option>
+                    <option value="Carrier_D">Carrier D</option>
+                    <option value="Carrier_E">Carrier E</option>
+                    <option value="Carrier_F">Carrier F</option>
+                    <option value="Carrier_G">Carrier G</option>
+                    <option value="Carrier_H">Carrier H</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Shipping Mode</label>
+                <select name="shipping_mode">
+                    <option value="">Select Shipping Mode</option>
+                    <option value="Rail">Rail</option>
+                    <option value="Road">Road</option>
+                    <option value="Sea">Sea</option>
+                    <option value="Unknown">Unknown</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Shipment Weight (kg)</label>
+                <input type="number" step="any" name="shipment_weight_kg" placeholder="e.g. 1200">
+            </div>
+
+            <div>
+                <label>Shipment Volume (cbm)</label>
+                <input type="number" step="any" name="shipment_volume_cbm" placeholder="e.g. 12.5">
+            </div>
+
+            <div>
+                <label>Planned Delivery Days</label>
+                <input type="number" step="any" name="planned_delivery_days" placeholder="e.g. 15">
+            </div>
+
+            <div>
+                <label>Shipping Cost (USD)</label>
+                <input type="number" step="any" name="shipping_cost_usd" placeholder="e.g. 3500">
+            </div>
+
+            <div>
+                <label>Fuel Surcharge (%)</label>
+                <input type="number" step="any" name="fuel_surcharge_pct" placeholder="e.g. 12">
+            </div>
+
+            <div>
+                <label>Shipment Value (USD)</label>
+                <input type="number" step="any" name="shipment_value_usd" placeholder="e.g. 8000">
+            </div>
+
+            <div>
+                <label>Priority</label>
+                <select name="priority_flag">
+                    <option value="">Select</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Fragile</label>
+                <select name="fragile_flag">
+                    <option value="">Select</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Temperature Control</label>
+                <select name="temperature_control_flag">
+                    <option value="">Select</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Insurance</label>
+                <select name="insurance_flag">
+                    <option value="">Select</option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+            </div>
+
+        </div>
+
+        <button type="submit">Predict Risk</button>
+
+        <p id="error" class="error">⚠ Please complete all fields before prediction.</p>
+    </form>
+
+    <div id="loader" class="loader">
+        <div class="spinner"></div>
+        <p>AI is analyzing shipment...</p>
+    </div>
+
+    {% if prediction_text %}
+        <div class="result
+            {% if 'High' in prediction_text %} high
+            {% elif 'Medium' in prediction_text %} medium
+            {% else %} low
+            {% endif %}">
+            {{ prediction_text }}
+        </div>
+    {% endif %}
+
+    {% if probability_text %}
+        <div class="info-box">
+            {{ probability_text }}
+        </div>
+    {% endif %}
+
+    {% if action_text %}
+        <div class="info-box">
+            {{ action_text }}
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

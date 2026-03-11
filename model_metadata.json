@@ -1,0 +1,19 @@
+{
+ "model_name": "SLA Breach Predictor",
+ "version": "1.0",
+ "training_date": "2026-03-01",
+ "metrics": {
+   "roc_auc": 0.91,
+   "recall": 0.87
+ },
+ "features": [
+   "shipment_weight_kg",
+   "shipment_volume_cbm",
+   "priority_flag",
+   "fragile_flag",
+   "planned_delivery_days",
+   "shipping_cost_usd",
+   "fuel_surcharge_percent",
+   "shipment_value_usd"
+ ]
+}
